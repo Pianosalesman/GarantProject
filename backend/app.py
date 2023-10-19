@@ -38,7 +38,7 @@ def all_items():
     return jsonify(response_object)
 
 
-@app.route('/items/<item_id>', methods=['PUT'])
+@app.route('/items/<item_id>', methods=['PUT', 'DELETE'])
 def single_items(item_id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
@@ -53,6 +53,10 @@ def single_items(item_id):
             'end': post_data.get('end')
         })
         response_object['message'] = 'Гарантия обновлена!'
+
+    if request.method == 'DELETE':
+        remove_item(item_id)
+        response_object['message'] = 'Гарантия удалена!'
     return jsonify(response_object)
 
 

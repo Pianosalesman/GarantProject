@@ -12,16 +12,16 @@ export default {
         title: '',
         body: '',
         period: '',
-        start: Date(),
-        end: Date(),
+        start: '',
+        end: ''
       },
       editItemform: {
         id: '',
         title: '',
         body: '',
         period: '',
-        start: Date(),
-        end: Date(),
+        start: '',
+        end: '',
       },
       items: [],
     }
@@ -60,6 +60,9 @@ export default {
       this.addItem(payload);
       this.initForm();
     },
+    addCancel() {
+      this.initForm()
+    },
     editSubmit () {
       this.switchEditItemModal(null);
       const payload = {
@@ -71,18 +74,23 @@ export default {
       };
       this.updateItem(payload, this.editItemform.id)
     },
+    editCancel() {
+      this.switchEditItemModal(null)
+      this.initForm()
+      this.getItems()
+    },
     initForm() {
       this.addItemform.title = '';
       this.addItemform.body = '';
       this.addItemform.period = '';
-      this.addItemform.start = Date()
-      this.addItemform.end = Date()
+      this.addItemform.start = '';
+      this.addItemform.end = '';
       this.editItemform.id = '';
       this.editItemform.title = '';
       this.editItemform.body = '';
       this.editItemform.period = '';
-      this.editItemform.start = Date()
-      this.editItemform.end = Date()
+      this.editItemform.start = '';
+      this.editItemform.end = '';
     },
     updateItem(payload, itemID) {
       const path = `http://127.0.0.1:5000/items/${itemID}`;
@@ -94,6 +102,21 @@ export default {
         console.error(error);
         this.getItems();
       })
+    },
+    deleteItem(item) {
+      this.removeItem(item.id);
+      this.initForm()
+    },
+    removeItem(itemID) {
+      const path = `http://127.0.0.1:5000/items/${itemID}`
+      axios.delete(path)
+          .then(() => {
+            this.getItems();
+          })
+          .catch((error) => {
+            console.error(error);
+            this.getItems();
+          } )
     },
     switchAddItemModal() {
       const body = document.querySelector('body');
@@ -139,8 +162,8 @@ export default {
         <br><br>
   </div>
       <!-- Форма отображения данных -->
-        <div class="row" v-for="i in Math.ceil(items.length / 4)" >
-          <div class="col-3" v-for="item in items.slice((i - 1) * 4, i * 4)">
+        <div class="row">
+          <div class="col-3" v-for="(item, index) in items" :key="index" >
             <div class="card">
               <div class="card-body">
                     <h5 class="card-title"> {{ item.title }}</h5>
@@ -151,7 +174,7 @@ export default {
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" @click="switchEditItemModal(item)" data-bs-target="#exampleModal" >
                       Обновить
                     </button>
-                    <button type="button" class="btn btn-danger">Удалить</button>
+                    <button type="button" class="btn btn-danger" @click="deleteItem(item)">Удалить</button>
               </div>
             </div>
             </div>
@@ -200,7 +223,7 @@ export default {
           <div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="switchAddItemModal">Закрыть</button>
+        <button type="button" class="btn btn-secondary" @click="addCancel">Сброс</button>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="addSumbit">Сохранить</button>
       </div>
     </div>
@@ -214,7 +237,7 @@ export default {
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="exampleModalLabel">Изменение гарантии: </h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" @click="switchEditItemModal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
@@ -254,7 +277,7 @@ export default {
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="switchEditItemModal" >Закрыть</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="editCancel">Сброс</button>
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="editSubmit">Подтвердить</button>
       </div>
     </div>
